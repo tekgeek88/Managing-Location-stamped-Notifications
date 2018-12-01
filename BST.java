@@ -1,1 +1,5 @@
-// BST Class
+public class BST implements Map {
+	
+	
+	
+}
