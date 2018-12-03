@@ -1,21 +1,53 @@
 public class LocNotManager {
-	// Load notifications from file. Assume format is correct. The notifications are
-	// indexed by latitude then by longitude.
+	
+	/**
+	 *  Load notifications from file. Assume format is correct. The notifications are
+	 *  indexed by latitude then by longitude.
+	 * @param fileName
+	 * @return
+	 */
 	public static Map<Double, Map<Double, LocNot>> load(String fileName) {
 		return null;
 	}
 
-	// Save notifications to file.
+	/**
+	 *  Save notifications to file.
+	 * @param fileName
+	 * @param nots
+	 */
 	public static void save(String fileName, Map<Double, Map<Double, LocNot>> nots) {
 	}
 
-	// Return all notifications sorted first by latitude then by longitude.
+	/**
+	 *  Return all notifications sorted first by latitude then by longitude.
+	 * @param nots
+	 * @return
+	 */
 	public static List<LocNot> getAllNots(Map<Double, Map<Double, LocNot>> nots) {
 		return null;
 	}
 
-	// Add a notification. Returns true if insert took place, false otherwise.
+	/**
+	 *  Add a notification. Returns true if insert took place, false otherwise.
+	 * @param nots
+	 * @param not
+	 * @return
+	 */
 	public static boolean addNot(Map<Double, Map<Double, LocNot>> nots, LocNot not) {
+		boolean wasInserted = false;
+		Map<Double, LocNot> currentLocations = null;
+		Double currentLat = not.getLat();
+		Double currentLong = not.getLng();
+		
+		if (nots.find(not.getLat())) {
+			currentLocations = nots.retrieve();
+		}
+		if (currentLocations != null) {
+			
+		}
+			
+		
+//		nots.insert(not.getLat(), not);
 		return false;
 	}
 
