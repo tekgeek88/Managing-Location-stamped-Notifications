@@ -121,8 +121,6 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 		return prev;
 	}
 
-
-
 	/** {@inheritDoc} */
 	@Override
 	public boolean insert(K key, T data) {
@@ -214,58 +212,6 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 			}
 		}
 		return false; // Not found
-	}
-
-	//	private BSTNode<K, T> remove(K key, BSTNode<K, T> node) {
-	//		if( node == null ) {
-	//			return null;
-	//		}
-	//		if(key.compareTo(node.key ) < 0 ) {
-	//			node.left = remove(key, node.left );
-	//		} else if(key.compareTo( node.key) > 0 ) {
-	//			node.right = remove(key, node.right );
-	//		} else if(node.left != null && node.right != null ) {
-	//			// Two children
-	//			node.key = findMin(node.right).key;
-	//			node.right = removeMin(node.right);
-	//		}
-	//		else {
-	//			node = (node.left != null ) ? node.left : node.right;
-	//		}
-	//
-	//		return node;
-	//	}
-
-	/**
-	 * Remove min element from a subtree
-	 * @param node the root node
-	 * @return new root node
-	 */
-	private BSTNode<K, T> removeMin(BSTNode<K, T> node) {
-		if (node == null) {
-			return null;
-		} else if (node.left != null) {
-			node.left = removeMin(node.left);
-			return node;
-		} else {
-			return node.right;
-		}
-	}
-
-	/**
-	 * Search a root node to find the smallest element
-	 * Helper method used to remove nodes with children
-	 * @param node
-	 * @return
-	 */
-	private BSTNode<K, T> findMin(BSTNode<K, T> node) {
-		if (node == null) {
-			return null;
-		}
-		while(node.left != null) {
-			node = node.left;
-		}
-		return node;
 	}
 
 	/** {@inheritDoc} */
