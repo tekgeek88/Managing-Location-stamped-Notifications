@@ -67,9 +67,8 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 	 * @return Desired node if found OR NULL if not found
 	 */
 	private BSTNode<K, T> get(K key) {
-		BSTNode<K, T> result;
-		result = findNode(key);
-		if ( key.compareTo(result.key) == 0) {
+		BSTNode<K, T> result = findNode(key);
+		if (result != null && key.compareTo(result.key) == 0) {
 			return result;
 		} else {
 			return null;
@@ -81,7 +80,67 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 	 */
 	@Override
 	public int nbKeyComp(K key) {
+		BSTNode<K, T> runner = root;
+		return getnbKeyComp(runner, key);
+	}
 
+	/** {@inheritDoc} */
+	@Override
+	public int nbKeyComp(K k1, K k2) {
+		BSTNode<K, T> runner = root;
+		// If the keys are not in ascending order we reverse them
+		if (k2.compareTo(k1) < 0) {
+			K temp = k1;
+			k1 = k2;
+			k2 = temp;
+		}
+		return getnbKeyComp(runner, k1, k2);
+	}
+
+	private int getnbKeyComp(BSTNode<K, T> node, K low, K high) {
+		if(node == null) 
+			return 0; 
+
+		// Node is in range
+		if(node.key.compareTo(low) >= 0 && node.key.compareTo(high) <= 0) { 
+			return 1 + getnbKeyComp(node.left, low, high) + this.getnbKeyComp(node.right, low, high);
+		}
+		// If current node is smaller than low,  
+		// then recur for right child 
+		else if(node.key.compareTo(low) < 0) 
+			return 1 + getnbKeyComp(node.right, low, high); 
+
+		// Else recur for left child 
+		else {
+			return getnbKeyComp(node.left, low, high);
+		}
+	}
+
+	/**
+	 * Helper method used to count the number of comparisons taken before finding a node
+	 * @param node
+	 * @param key
+	 * @return
+	 */
+	private int getnbKeyComp(BSTNode<K, T> node, K key) {
+		int count = 0;
+		BSTNode<K, T> runner;   // Current node in search
+
+		runner = root;  // Always start at the root node
+
+		while ( runner != null ) {
+			if (key.compareTo(runner.key ) < 0 ) {
+				runner = runner.left;
+				count++;
+			} else if ( key.compareTo( runner.key ) > 0 ) {
+				runner = runner.right;
+				count++;
+			} else {
+				// Found key in BST
+				return count;
+			}
+		}
+		// Return 0 if key is not found
 		return 0;
 	}
 
@@ -97,7 +156,7 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 		BSTNode<K, T> prev;   	// Parent of node if not found
 
 		runner = root;  // Always start at the root node
-		prev = root;  	// Remember the previous node for insertion
+		prev = null;  	// Remember the previous node for insertion
 
 		while ( runner != null ) {
 			if (!runner.isLeaf()) {
@@ -159,52 +218,68 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 	public boolean remove(K key) {
 		// Search for key
 		K k1 = key;
-		BSTNode<K, T> p = root;
-		BSTNode<K, T> q = null; // Parent
+		BSTNode<K, T> runner = root;
+		BSTNode<K, T> prev = null; // Parent
 
-		while (p != null) {
-			if (k1.compareTo(p.key) < 0) {
-				q = p;
-				p = p.left;
-			} else if (k1.compareTo(p.key) > 0) {
-				q = p;
-				p = p.right;
+		while (runner != null) {
+			if (k1.compareTo(runner.key) < 0) {
+				prev = runner;
+				runner = runner.left;
+			} else if (k1.compareTo(runner.key) > 0) {
+				prev = runner;
+				runner = runner.right;
 			}
 			// found the key
 			else {
 				// Check the three cases
-				if ((p.left != null) && (p.right != null)) {
+				// If we delete this node it will not change our fullness
+				if ((runner.left != null) && (runner.right != null)) {
 					// Case 3: two children
 					// Search for the min in the right subtree
-					BSTNode<K, T> min = p.right;
-					q = p;
+					BSTNode<K, T> min = runner.right;
+					prev = runner;
 					while(min.left != null) {
-						q = min;
+						prev = min;
 						min = min.left;
 					}
-					p.key = min.key;
-					p.data = min.data;
+					runner.key = min.key;
+					runner.data = min.data;
 					k1 = min.key;
-					p = min;
-				} // Now fall back to either case 1 or 2
+					runner = min;
+				}
+				// Now fall back to either case 1 or 2
 				// The subtree rooted at p will change here
 				// One child
-				if (p.left != null) {
-					p = p.left;
+				if (runner.left != null) {
+					runner = runner.left;
 				}
 				// One or no children
 				else {
-					p = p.right;
+					runner = runner.right;
 				}
 				// No parent for p, root must change
-				if (q == null) {
-					root = p;
+				if (prev == null) {
+					root = runner;
+					if (runner != null) {
+						if (!runner.isLeaf()) {
+							isFull = false;
+						} else {
+							isFull = true;
+						}
+					} else {
+						isFull = false;
+					}
 				}
 				else {
-					if (k1.compareTo(q.key) < 0) {
-						q.left = p;
+					if (k1.compareTo(prev.key) < 0) {
+						prev.left = runner;
 					} else {
-						q.right = p;
+						prev.right = runner;
+					}
+					if (!prev.isLeaf()) {
+						isFull = false;
+					} else {
+						isFull = true;
 					}
 				}
 				current = root;
@@ -267,14 +342,6 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 		}
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public int nbKeyComp(K k1, K k2) {
-		BSTNode<K, T> runner = root;
-		int count = 0;// = countInRange(runner, k1, k2, 0); 
-		return count;
-	}
-
 	/**
 	 * Display the BST using an in-order traversal
 	 */
@@ -292,6 +359,57 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 			System.out.println(node.key);
 			printInOrder(node.right);
 		}
+	}
+
+	// traversals from previous tree implementations
+	private String preorder(BSTNode<K, T> node){
+		if(node == null) return "".toString();
+		else {		
+			String left, right;
+			left = preorder(node.left);
+			right = preorder(node.right);
+			return node + ", " + left + right;
+		}
+	}
+
+	public String preorder() {
+		String str = preorder(root);
+		int end = Math.max(0, str.length()-2);
+		return "[" + str.substring(0, end) + "]";
+	}
+
+	private String inorder(BSTNode<K, T> node){
+
+		if(node == null) return "".toString();
+		else {		
+			String left, right;
+			left = inorder(node.left);
+			right = inorder(node.right);
+			return left + node + ", " + right;
+		}
+	}
+
+	public String inorder() {
+		String str = inorder(root);
+		int end = Math.max(0, str.length()-2);
+		return "[" + str.substring(0, end) + "]";
+	}
+
+	private String postorder(BSTNode<K, T> node){
+
+		if(node == null) return "".toString();
+		else {		
+			String left, right;
+			left = postorder(node.left);
+			right = postorder(node.right);
+			return left + right + node + ", ";
+		}
+	}
+
+	public String postorder() {
+		String str = postorder(root);
+		int end = Math.max(0, str.length()-2);
+		return "[" + str.substring(0, end) + "]";
 	}
 
 }// End BST class

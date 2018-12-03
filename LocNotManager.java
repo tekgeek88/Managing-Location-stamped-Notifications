@@ -1,5 +1,5 @@
 public class LocNotManager {
-	
+
 	/**
 	 *  Load notifications from file. Assume format is correct. The notifications are
 	 *  indexed by latitude then by longitude.
@@ -24,6 +24,13 @@ public class LocNotManager {
 	 * @return
 	 */
 	public static List<LocNot> getAllNots(Map<Double, Map<Double, LocNot>> nots) {
+		Map<Double, LocNot> locNots = null;
+		
+//		Double currentLat = 
+		
+		
+		List<Pair<Double, Map<Double, LocNot>> list = nots.getAll();
+		
 		return null;
 	}
 
@@ -35,20 +42,22 @@ public class LocNotManager {
 	 */
 	public static boolean addNot(Map<Double, Map<Double, LocNot>> nots, LocNot not) {
 		boolean wasInserted = false;
-		Map<Double, LocNot> currentLocations = null;
-		Double currentLat = not.getLat();
-		Double currentLong = not.getLng();
-		
+		Map<Double, LocNot> locNots = null;
+
+		// retrieve a Map of location notifications for the given latitude
 		if (nots.find(not.getLat())) {
-			currentLocations = nots.retrieve();
+			locNots = nots.retrieve();
+			wasInserted = locNots.insert(not.getLng(), not);
 		}
-		if (currentLocations != null) {
-			
-		}
-			
-		
-//		nots.insert(not.getLat(), not);
-		return false;
+		// No locNots for the given latitude exist
+		else {
+			locNots = new BST<Double, LocNot>();
+			locNots.insert(not.getLng(), not);
+			nots.insert(not.getLat(), locNots);
+			wasInserted = true;
+		} 
+
+		return wasInserted;
 	}
 
 	// Delete the notification at (lat, lng). Returns true if delete took place, false otherwise.
