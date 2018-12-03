@@ -29,7 +29,8 @@ public class LocNotManager {
 //		Double currentLat = 
 		
 		
-		List<Pair<Double, Map<Double, LocNot>> list = nots.getAll();
+		List<Pair<Double, Map<Double, LocNot>>> list = nots.getAll();
+		
 		
 		return null;
 	}
