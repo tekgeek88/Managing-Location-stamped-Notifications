@@ -22,7 +22,7 @@ public class LocNotManager {
 
 
 		try {
-			// use buffered reader to read line by line
+			
 			buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
 
 			double longitude, latitude; 
@@ -30,10 +30,9 @@ public class LocNotManager {
 			String locationName = null;
 			String line = null;
 			String[] fields = null;
-			// read line by line till end of file
+
 			while ((line = buffReader.readLine()) != null) {
-				// split each line based on regular expression having
-				// "any digit followed by one or more spaces".
+
 
 				fields = line.split("\t");
 
@@ -67,9 +66,17 @@ public class LocNotManager {
 	 */
 	public static void save(String fileName, Map<Double, Map<Double, LocNot>> nots) {
 		BufferedWriter notWriter = null;
+		List<LocNot> allNots = null; 
 		try {
 			notWriter = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fileName), StandardCharsets.UTF_8));
-			nots.toString();
+			
+			allNots = getAllNots(nots);
+			
+			while(!allNots.empty()) {
+				notWriter.write(allNots.retrieve().toString() + "\n");
+				
+				allNots.remove();
+			}
 
 			notWriter.close();
 		}
@@ -77,9 +84,6 @@ public class LocNotManager {
 			System.out.println("Error writing codes to file!");
 		}
 	}
-
-
-
 
 	/**
 	 *  Return all notifications sorted first by latitude then by longitude.
@@ -115,6 +119,7 @@ public class LocNotManager {
 			}
 			
 		}
+		allNots.findFirst();
 		return allNots;
 	}
 
