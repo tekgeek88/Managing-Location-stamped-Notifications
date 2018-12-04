@@ -22,7 +22,7 @@ public class LocNotManager {
 
 
 		try {
-			
+
 			buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
 
 			double longitude, latitude; 
@@ -69,12 +69,12 @@ public class LocNotManager {
 		List<LocNot> allNots = null; 
 		try {
 			notWriter = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fileName), StandardCharsets.UTF_8));
-			
+
 			allNots = getAllNots(nots);
-			
+
 			while(!allNots.empty()) {
 				notWriter.write(allNots.retrieve().toString() + "\n");
-				
+
 				allNots.remove();
 			}
 
@@ -97,7 +97,7 @@ public class LocNotManager {
 
 		// Fetch a List of all the given latitudes as entries
 		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getAll();
-		
+
 		// {key: Longitude, Value: LocNot}
 		List<Pair<Double, LocNot>> entryLocation = null;
 
@@ -109,7 +109,7 @@ public class LocNotManager {
 			currentLatitude = entryLatitude.retrieve().first;
 			entryLocation = entryLatitude.retrieve().second.getAll();
 			entryLatitude.remove();
-			
+
 			while (!entryLocation.empty()) {
 				currentLongitude = entryLocation.retrieve().first;
 				currentLocation = entryLocation.retrieve().second;
@@ -117,7 +117,7 @@ public class LocNotManager {
 				allNots.insert(currentLocation);
 				entryLocation.remove();
 			}
-			
+
 		}
 		allNots.findFirst();
 		return allNots;
@@ -164,12 +164,77 @@ public class LocNotManager {
 
 	// Return the list of notifications within a square of side dst (in meters) centered at the position (lat, lng) (it does not matter if the notification is active or not). Do not call Map.getAll().
 	public static List<LocNot> getNotsAt(Map<Double, Map<Double, LocNot>> nots, double lat, double lng, double dst) {
-		return null;
+		dst *= 0.5; // divide distance by two. 
+		double lowLat = lat - dst;
+		double highLat = lat + dst;
+		double lowLng = lng - dst;
+		double highLng = lng + dst;
+		// A LinkedList to store all of the notifications into
+		List<LocNot> allNots = new LinkedList<LocNot>();
+
+		// Fetch a List of all the given latitudes within the given range.
+		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getRange(lowLat, highLat);
+
+		// {key: Longitude, Value: LocNot}
+		List<Pair<Double, LocNot>> entryLocation = null;
+
+		Double currentLongitude;
+		LocNot currentLocation;
+
+		while (!entryLatitude.empty()) {
+			entryLocation = entryLatitude.retrieve().second.getAll();
+			entryLatitude.remove();
+
+			while (!entryLocation.empty()) {
+				currentLongitude = entryLocation.retrieve().first;
+				if( currentLongitude.compareTo(lowLng) >= 0 && currentLongitude.compareTo(highLng) <= 0 ) {
+					currentLocation = entryLocation.retrieve().second;
+					allNots.insert(currentLocation);		
+				}
+				entryLocation.remove();
+			}
+		}
+
+		return allNots;
 	}
 
 	// Return the list of active notifications within a square of side dst (in meters) centered at the position (lat, lng). Do not call Map.getAll().
 	public static List<LocNot> getActiveNotsAt(Map<Double, Map<Double, LocNot>> nots, double lat, double lng, double dst) {
-		return null;
+		dst *= 0.5; // divide distance by two. 
+		double lowLat = lat - GPS.angle( dst);
+		double highLat = lat + GPS.angle( dst);
+		double lowLng = lng - GPS.angle( dst);
+		double highLng = lng + GPS.angle( dst);
+		
+		// A LinkedList to store all of the notifications into
+		List<LocNot> allNots = new LinkedList<LocNot>();
+
+		// Fetch a List of all the given latitudes within the given range.
+		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getRange(lowLat , highLat);
+
+		// {key: Longitude, Value: LocNot}
+		List<Pair<Double, LocNot>> entryLocation = null;
+
+		Double currentLongitude;
+		LocNot currentLocation;
+
+		while (!entryLatitude.empty()) {
+			entryLocation = entryLatitude.retrieve().second.getAll();
+			entryLatitude.remove();
+
+			while (!entryLocation.empty()) {
+				currentLongitude = entryLocation.retrieve().first;
+				if( currentLongitude.compareTo(lowLng) >= 0 && currentLongitude.compareTo(highLng) <= 0) {
+					currentLocation = entryLocation.retrieve().second;
+					if(currentLocation.isActive()) {
+						allNots.insert(currentLocation);		
+					}
+				}
+				entryLocation.remove();
+			}
+		}
+
+		return allNots;
 	}
 
 	// Perform task of any active notification within a square of side dst (in meters) centered at the position (lat, lng) (call method perform). Do not call Map.getAll().
