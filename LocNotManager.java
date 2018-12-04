@@ -101,19 +101,14 @@ public class LocNotManager {
 		// {key: Longitude, Value: LocNot}
 		List<Pair<Double, LocNot>> entryLocation = null;
 
-		Double currentLatitude;
-		Double currentLongitude;
 		LocNot currentLocation;
 
 		while (!entryLatitude.empty()) {
-			currentLatitude = entryLatitude.retrieve().first;
 			entryLocation = entryLatitude.retrieve().second.getAll();
 			entryLatitude.remove();
 
 			while (!entryLocation.empty()) {
-				currentLongitude = entryLocation.retrieve().first;
 				currentLocation = entryLocation.retrieve().second;
-				// System.out.println(currentLatitude + " " + currentLongitude + " " + currentLocation.getText());
 				allNots.insert(currentLocation);
 				entryLocation.remove();
 			}
@@ -205,7 +200,7 @@ public class LocNotManager {
 		double highLat = lat + GPS.angle( dst);
 		double lowLng = lng - GPS.angle( dst);
 		double highLng = lng + GPS.angle( dst);
-		
+
 		// A LinkedList to store all of the notifications into
 		List<LocNot> allNots = new LinkedList<LocNot>();
 
@@ -241,20 +236,69 @@ public class LocNotManager {
 	public static void perform(Map<Double, Map<Double, LocNot>> nots, double lat, double lng, double dst) {
 		List<LocNot> allNots = new LinkedList<LocNot>();
 		allNots = getActiveNotsAt(nots, lat, lng, dst);
-		LocNot currentLocation;
 		while(!allNots.empty()) {
-			
+			allNots.retrieve().perform();
+			allNots.remove();
 		}
-		
 	}
 
-	// Return a map that maps every word to the list of notifications in which it appears. The list must have no duplicates.
+	// A word is assumed to be any single or multiple group of characters separated by a space.
+	// Return a map that maps every word to the list of notifications in which it appears.
+	// The list must have no duplicates.
 	public static Map<String, List<LocNot>> index(Map<Double, Map<Double, LocNot>> nots) {
-		return null;
+		
+		// A map of words
+		Map<String, List<LocNot>> wordMap = new BST<String, List<LocNot>>();
+		
+		//		Map<String, Map<Double, Map<Double, LocNot>>> mapster = new BST<String, Map<Double, Map<Double, LocNot>>>();
+		
+		// Fetch a List of all possible latitudes as entries
+		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getAll();
+		List<Pair<Double, LocNot>> entryLocations = null;
+		LocNot currentLocation;
+
+		while (!entryLatitude.empty()) {
+			entryLocations = entryLatitude.retrieve().second.getAll();
+			entryLatitude.remove();
+
+			while (!entryLocations.empty()) {
+				currentLocation = entryLocations.retrieve().second;
+				String[] words = currentLocation.getText().split(" ");
+				// For each word in each location
+				
+				for (String s: words) {
+					// If the current word already existed in the wordMap
+					// retrieve the list and append to it
+					if (wordMap.find(s)) {
+						List<LocNot> currentList = wordMap.retrieve();
+						List<LocNot> newList = new LinkedList<LocNot>();
+						currentList.insert(currentLocation);
+					} else {
+//						wordMap.insert(s, new LinkedList<LocNot>().insert(currentLocation));
+						List<LocNot> newList = new LinkedList<LocNot>();
+						newList.insert(currentLocation);
+						wordMap.insert(s, newList);
+					}
+				}
+				entryLocations.remove();
+			}
+		}
+
+
+		return wordMap;
 	}
 
 	// Delete all notifications containing the word w.
 	public static void delNots(Map<Double, Map<Double, LocNot>> nots, String w) {
+		Map<String, List<LocNot>> wordMap = index(nots);
+		if (wordMap.find(w)) {
+			List<LocNot> locations = wordMap.retrieve();
+			while(!locations.empty()) {
+				LocNot currentLoaction = locations.retrieve(); 
+				delNot(nots, currentLoaction.getLat(), currentLoaction.getLng());
+				locations.remove();
+			}
+		}
 	}
 
 	// Print a list of notifications in the same format used in file.

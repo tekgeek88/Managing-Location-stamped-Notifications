@@ -337,7 +337,6 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 		} 
 		if ((k1.compareTo(node.key) <= 0) && (k2.compareTo(node.key) >= 0)) { 
 			list.insert(new Pair<K, T>(node.key, node.data));
-			System.out.println("node.key: " + node.key);
 		} 
 		if (k2.compareTo(node.key) > 0) { 
 			getRange(node.right, k1, k2, list); 
