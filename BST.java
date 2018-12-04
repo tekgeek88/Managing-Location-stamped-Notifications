@@ -295,6 +295,7 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 		BSTNode<K, T> runner = root;
 		List<Pair<K, T>> list = new LinkedList<Pair<K, T>>();
 		getAll(runner, list);
+		list.findFirst();
 		return list;
 	}
 
@@ -323,6 +324,7 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 			k2 = temp;
 		}
 		getRange(runner, k1, k2, listInRange);
+		listInRange.findFirst();
 		return listInRange;
 	}
 

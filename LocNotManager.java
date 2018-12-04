@@ -19,44 +19,44 @@ public class LocNotManager {
 	public static Map<Double, Map<Double, LocNot>> load(String fileName) {
 		BufferedReader buffReader = null;
 		Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-		
 
-		    try {
-		        // use buffered reader to read line by line
-		    	 buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
 
-		        double longitude, latitude; 
-		        int maxNbRepeats, nbReapeats;
-		        String locationName = null;
-		        String line = null;
-		        String[] fields = null;
-		        // read line by line till end of file
-		        while ((line = buffReader.readLine()) != null) {
-		            // split each line based on regular expression having
-		            // "any digit followed by one or more spaces".
+		try {
+			// use buffered reader to read line by line
+			buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
 
-		            fields = line.split("\t");
+			double longitude, latitude; 
+			int maxNbRepeats, nbReapeats;
+			String locationName = null;
+			String line = null;
+			String[] fields = null;
+			// read line by line till end of file
+			while ((line = buffReader.readLine()) != null) {
+				// split each line based on regular expression having
+				// "any digit followed by one or more spaces".
 
-		            latitude = Double.valueOf(fields[0].trim());
-		            longitude = Double.valueOf(fields[1].trim());
-		            maxNbRepeats = Integer.valueOf(fields[2].trim());
-		            nbReapeats = Integer.valueOf(fields[3].trim());
-		            locationName = fields[4].trim();
-		            
-		            LocNotManager.addNot(nots, new LocNot(locationName, latitude, longitude, maxNbRepeats, nbReapeats));
-		            
-		        }
-		    } catch (IOException e) {
-		        System.err.println("Exception:" + e.toString());
-		    } finally {
-		        if (buffReader != null) {
-		            try {
-		                buffReader.close();
-		            } catch (IOException e) {
-		                System.err.println("Exception:" + e.toString());
-		            }
-		        }
-		    }
+				fields = line.split("\t");
+
+				latitude = Double.valueOf(fields[0].trim());
+				longitude = Double.valueOf(fields[1].trim());
+				maxNbRepeats = Integer.valueOf(fields[2].trim());
+				nbReapeats = Integer.valueOf(fields[3].trim());
+				locationName = fields[4].trim();
+
+				LocNotManager.addNot(nots, new LocNot(locationName, latitude, longitude, maxNbRepeats, nbReapeats));
+
+			}
+		} catch (IOException e) {
+			System.err.println("Exception:" + e.toString());
+		} finally {
+			if (buffReader != null) {
+				try {
+					buffReader.close();
+				} catch (IOException e) {
+					System.err.println("Exception:" + e.toString());
+				}
+			}
+		}
 		return nots;
 	}
 
@@ -66,20 +66,20 @@ public class LocNotManager {
 	 * @param nots
 	 */
 	public static void save(String fileName, Map<Double, Map<Double, LocNot>> nots) {
-		 BufferedWriter notWriter = null;
-		 try {
-	            notWriter = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fileName), StandardCharsets.UTF_8));
-	            nots.toString();
-	            
-	            notWriter.close();
-	        }
-	        catch (IOException e) {
-	            System.out.println("Error writing codes to file!");
-	        }
-	    }
+		BufferedWriter notWriter = null;
+		try {
+			notWriter = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fileName), StandardCharsets.UTF_8));
+			nots.toString();
 
-		
-	
+			notWriter.close();
+		}
+		catch (IOException e) {
+			System.out.println("Error writing codes to file!");
+		}
+	}
+
+
+
 
 	/**
 	 *  Return all notifications sorted first by latitude then by longitude.
@@ -90,43 +90,35 @@ public class LocNotManager {
 
 		// A LinkedList to store all of the notifications into
 		List<LocNot> allNots = new LinkedList<LocNot>();
+
+
+
+
+		// Fetch a List of all the given latitudes as entries
+		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getAll();
 		
-		// Get a List of all latitudes
-		List<Pair<Double, Map<Double, LocNot>>> latitudes = nots.getAll();
-		
-		// Make sure we are pointing to the head node.
-		latitudes.findFirst();
-		
-		 
+		// {key: Longitude, Value: LocNot}
+		List<Pair<Double, LocNot>> entryLocation = null;
+
 		Double currentLatitude;
 		Double currentLongitude;
-		
-		// Key: Longitude, Value: LocationNotification
-		List<Pair<Double, LocNot>> locations;
+		LocNot currentLocation;
 
-		// For each latitude  
-		while ((currentLatitude = latitudes.retrieve().first) != null) {
+
+		while (!entryLatitude.empty()) {
+			currentLatitude = entryLatitude.retrieve().first;
+			entryLocation = entryLatitude.retrieve().second.getAll();
+			entryLatitude.remove();
 			
-			// Fetch all the watched locations for the given latitude
-			locations = latitudes.retrieve().second.getAll();
-			locations.findFirst();
-			
-			Pair<Double, LocNot> currentLocation;
-			
-			latitudes.findNext();
-			
-			// For each longitude
-			while(locations.empty()) {
-				currentLocation = locations.retrieve();
-				currentLongitude = currentLocation.first;
-				LocNot currentLocNot = locations.retrieve().second;
-				System.out.println(currentLatitude + " " + currentLongitude + " " + currentLocNot.getText());
-				locations.findNext();
-				allNots.insert(currentLocNot);
-				
+			while (!entryLocation.empty()) {
+				currentLongitude = entryLocation.retrieve().first;
+				currentLocation = entryLocation.retrieve().second;
+				// System.out.println(currentLatitude + " " + currentLongitude + " " + currentLocation.getText());
+				allNots.insert(currentLocation);
+				entryLocation.remove();
 			}
+			
 		}
-		
 		return allNots;
 	}
 
