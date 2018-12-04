@@ -1,3 +1,13 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 public class LocNotManager {
 
 	/**
@@ -7,7 +17,47 @@ public class LocNotManager {
 	 * @return
 	 */
 	public static Map<Double, Map<Double, LocNot>> load(String fileName) {
-		return null;
+		BufferedReader buffReader = null;
+		Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
+		
+
+		    try {
+		        // use buffered reader to read line by line
+		    	 buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
+
+		        double longitude, latitude; 
+		        int maxNbRepeats, nbReapeats;
+		        String locationName = null;
+		        String line = null;
+		        String[] fields = null;
+		        // read line by line till end of file
+		        while ((line = buffReader.readLine()) != null) {
+		            // split each line based on regular expression having
+		            // "any digit followed by one or more spaces".
+
+		            fields = line.split("\t");
+
+		            latitude = Double.valueOf(fields[0].trim());
+		            longitude = Double.valueOf(fields[1].trim());
+		            maxNbRepeats = Integer.valueOf(fields[2].trim());
+		            nbReapeats = Integer.valueOf(fields[3].trim());
+		            locationName = fields[4].trim();
+		            
+		            LocNotManager.addNot(nots, new LocNot(locationName, latitude, longitude, maxNbRepeats, nbReapeats));
+		            
+		        }
+		    } catch (IOException e) {
+		        System.err.println("Exception:" + e.toString());
+		    } finally {
+		        if (buffReader != null) {
+		            try {
+		                buffReader.close();
+		            } catch (IOException e) {
+		                System.err.println("Exception:" + e.toString());
+		            }
+		        }
+		    }
+		return nots;
 	}
 
 	/**
@@ -16,7 +66,20 @@ public class LocNotManager {
 	 * @param nots
 	 */
 	public static void save(String fileName, Map<Double, Map<Double, LocNot>> nots) {
-	}
+		 BufferedWriter notWriter = null;
+		 try {
+	            notWriter = new BufferedWriter(new OutputStreamWriter( new FileOutputStream(fileName), StandardCharsets.UTF_8));
+	            nots.toString();
+	            
+	            notWriter.close();
+	        }
+	        catch (IOException e) {
+	            System.out.println("Error writing codes to file!");
+	        }
+	    }
+
+		
+	
 
 	/**
 	 *  Return all notifications sorted first by latitude then by longitude.
