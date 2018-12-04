@@ -1,22 +1,15 @@
 
-public class BSTNode<Key extends Comparable<? super Key>, Data> implements Comparable<BSTNode<Key, Data>> {
+public class BSTNode<K extends Comparable<? super K>, T> implements Comparable<BSTNode<K, T>> {
 
-	Key key;
-	Data data;
+	K key;
+	T data;
+	BSTNode<K, T> left, right;
 
-	BSTNode<Key, Data> left;
-	BSTNode<Key, Data> right;
-
-
-	BSTNode() {
-		this(null, null, null, null);
-	}
-
-	BSTNode(Key key, Data data) {
+	BSTNode(K key, T data) {
 		this(key, data, null, null);
 	}
 
-	BSTNode(Key key, Data value, BSTNode<Key, Data> left, BSTNode<Key, Data> right) {
+	BSTNode(K key, T value, BSTNode<K, T> left, BSTNode<K, T> right) {
 		this.key = key;
 		this.data = value;
 		this.left = left;
@@ -28,7 +21,7 @@ public class BSTNode<Key extends Comparable<? super Key>, Data> implements Compa
 	}
 
 	@Override
-	public int compareTo(BSTNode<Key, Data> other) {
+	public int compareTo(BSTNode<K, T> other) {
 		if (other != null) {
 			return key.compareTo(other.key);
 		} else {

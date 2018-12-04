@@ -2,8 +2,60 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 
 	BSTNode<K, T> root;
 	BSTNode<K, T> current;
-	int size;
 	boolean isFull = false;
+	
+	
+	private static class BSTNode<K extends Comparable<K>, T> implements Comparable<K> {
+
+		K key;
+		T data;
+		BSTNode<K, T> left, right;
+
+		BSTNode(K key, T data) {
+			this(key, data, null, null);
+		}
+
+		BSTNode(K key, T value, BSTNode<K, T> left, BSTNode<K, T> right) {
+			this.key = key;
+			this.data = value;
+			this.left = left;
+			this.right = right;
+		}		
+
+		public boolean isLeaf() {
+			return left == null && right == null;
+		}
+
+		@Override
+		public int compareTo(K other) {
+			if (other != null) {
+				return key.compareTo(other);
+			} else {
+				return 0;
+			}
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			if (key != null) {
+				sb.append("Key: ");
+				sb.append(key);
+			}
+			if (left != null ) {
+				sb.append(" Left: ");
+				sb.append(left.key);
+			}
+			if (right != null ) {
+				sb.append(" Right: ");
+				sb.append(right.key);
+			}
+			return sb.toString();
+		}
+
+	}// End BSTNode class
+	
+	
 
 	/** 
 	 * Default constructor
@@ -29,6 +81,8 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 	@Override
 	public void clear() {
 		root = null;
+		current = null;
+		isFull = false;
 	}
 
 	/** {@inheritDoc} */
@@ -44,7 +98,7 @@ public class BST<K extends Comparable<K>, T> implements Map<K, T> {
 	/** {@inheritDoc} */
 	@Override
 	public void update(T e) {
-		if (current.data != null) {
+		if (current != null) {
 			current.data = e;
 		}
 	}

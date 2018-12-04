@@ -237,7 +237,6 @@ public class LocNotManager {
 		}
 	}
 
-	// A word is assumed to be any single or multiple group of characters separated by a space.
 	// Return a map that maps every word to the list of notifications in which it appears.
 	// The list must have no duplicates.
 	public static Map<String, List<LocNot>> index(Map<Double, Map<Double, LocNot>> nots) {
@@ -267,6 +266,7 @@ public class LocNotManager {
 					if (wordMap.find(s)) {
 						List<LocNot> currentList = wordMap.retrieve();
 						List<LocNot> newList = new LinkedList<LocNot>();
+						
 						currentList.insert(currentLocation);
 					} else {
 						List<LocNot> newList = new LinkedList<LocNot>();

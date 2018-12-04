@@ -1,45 +1,86 @@
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.Rule;
+import java.util.ArrayList;
+import java.util.Random;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.Timeout;
 
-class LocNotManagerTestComp {
+class TestBST {
 
-	@SuppressWarnings("deprecation")
+	private BST<Integer, Integer> testBST;
 
-	@Rule
-	public Timeout globalTimeout = new Timeout(1000);
+	public static Random random;
+
+	ArrayList<Integer> randomNumbers;
+
+	/**
+	 * The @Before annotation is a method written once and called before each
+	 * test case in a test class.
+	 */
+	@BeforeEach
+	public void setUp() {
+		testBST = new BST<Integer, Integer>();
+		random = new Random();
+	}
+
 
 	@Test
-	public void testRetrieve() {
+	public void testEmptyAsConstructed() {
+		assertTrue(testBST.empty(), "The BST should be empty when first constructed!");
+	}
+
+	@Test
+	public void testNotEmptyAfterInsert() {
+		testBST.insert(5, 5);
+		assertFalse(testBST.empty(), "The BST should be empty after an element is inserted!");
+	}
+
+
+	@Test
+	public void testIsEmptyAfterInsertThenDelete() {
+		testBST.insert(5, 5);
+		testBST.remove(5);
+		assertTrue(testBST.empty(), "The BST should be empty after an element is inserted!");
+	}
+
+
+	@Test
+	public void testEmptyAfterInsert10ThenDelete10() {
+		int[] numbers = {10, 4, 6, 2, 5, 1, 3, 8, 9, 7};
+		int[] numbersReArranged = {9, 4, 3, 8, 1, 7, 5, 6, 10, 2};
+
+		for (int i = 0; i < numbers.length; i++) {
+			testBST.insert(numbers[i], numbers[i]);
+		}
+
+		for (int i = 0; i < numbers.length; i++) {
+			testBST.remove(numbersReArranged[i]);
+		}
+
+		assertTrue(testBST.empty(), "The BST should be empty after an 10 insertions and 10 deletions!");
+	}
+
+
+	@Test
+	public void testRetrieveSingleValue() {
 		try {
-			Map<Integer, Integer> bst = new BST<Integer, Integer>();
-			bst.insert(12, 12);
+			testBST.insert(12, 12);
+			int actual = testBST.retrieve();
+			assertEquals("inserted 12", 12, actual);
 		} catch (Exception e) {
 			fail("Your program threw an exception.");
-			e.printStackTrace();
 		}
 	}
 
 	@Test
 	public void testUpdate() {
 		try {
-			Map<Integer, Integer> bst = new BST<Integer, Integer>();
-			bst.insert(100, 100);
-			bst.update(55);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testEmpty() {
-		try {
-			Map<Integer, Integer> bst = new BST<Integer, Integer>();
-			bst.insert(100, 100);
-			boolean f = bst.empty();
+			testBST.insert(100, 100);
+			testBST.update(55);
+			int actual = testBST.retrieve();
+			assertEquals("inserted 100 -> updated 55", 55, actual);
 		} catch (Exception e) {
 			fail("Your program threw an exception.");
 			e.printStackTrace();
@@ -49,9 +90,8 @@ class LocNotManagerTestComp {
 	@Test
 	public void testFull() {
 		try {
-			Map<Integer, Integer> bst = new BST<Integer, Integer>();
-			bst.insert(100, 100);
-			boolean f = bst.full();
+			testBST.insert(100, 100);
+			boolean f = testBST.full();
 		} catch (Exception e) {
 			fail("Your program threw an exception.");
 			e.printStackTrace();
@@ -71,14 +111,22 @@ class LocNotManagerTestComp {
 	}
 
 	@Test
-	public void testFind() {
+	public void testFindListOf10Rearranged() {
 		try {
-			Map<Integer, Integer> bst = new BST<Integer, Integer>();
-			bst.insert(100, 100);
-			boolean f = bst.find(33);
+			int[] numbers = {10, 4, 6, 2, 5, 1, 3, 8, 9, 7};
+			int[] numbersReArranged = {9, 4, 3, 8, 1, 7, 5, 6, 10, 2};
+
+			for (int i = 0; i < numbers.length; i++) {
+				testBST.insert(numbers[i], numbers[i]);
+			}
+
+			for (int i = 0; i < numbersReArranged.length; i++) {
+				boolean f = testBST.find(numbersReArranged[i]);
+				assertTrue(f, "Trying to find " + numbersReArranged[i]);
+			}
+
 		} catch (Exception e) {
 			fail("Your program threw an exception.");
-			e.printStackTrace();
 		}
 	}
 
@@ -106,11 +154,43 @@ class LocNotManagerTestComp {
 	}
 
 	@Test
-	public void testRemove() {
+	public void testRemove10() {
+		int[] numbers = {10, 4, 6, 2, 5, 1, 3, 8, 9, 7};
+		int[] numbersReArrangedPlusOne = {9, 4, 3, 8, 1, 7, 5, 6, 10, 2};
+
+		// Insert 10 numbers
+		for (int i = 0; i < numbers.length; i++) {
+			testBST.insert(numbers[i], numbers[i]);
+		}
+
 		try {
-			Map<Integer, Integer> bst = new BST<Integer, Integer>();
-			bst.insert(100, 100);
-			boolean f = bst.remove(20);
+			for (int i = 0; i < numbersReArrangedPlusOne.length; i++) {
+				boolean wasRemoved = testBST.remove(numbersReArrangedPlusOne[i]);
+				assertTrue(wasRemoved, "After removing " + numbersReArrangedPlusOne[i]);
+				boolean wasFound = testBST.find(numbersReArrangedPlusOne[i]);
+				assertFalse(wasFound, "Trying to find " + numbersReArrangedPlusOne[i]);
+			}
+		} catch (Exception e) {
+			fail("Your program threw an exception.");
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testRemoveAnExtra() {
+		int[] numbers = {10, 4, 6, 2, 5, 1, 3, 8, 9, 7};
+		int[] numbersReArrangedPlusOne = {9, 4, 3, 8, 1, 7, 5, 6, 10, 2};
+
+		// Insert 10 numbers
+		for (int i = 0; i < numbers.length; i++) {
+			testBST.insert(numbers[i], numbers[i]);
+		}
+
+		try {
+			// Remove 11
+			for (int i = 0; i < numbersReArrangedPlusOne.length; i++) {
+				testBST.remove(numbersReArrangedPlusOne[i]);
+			}
 		} catch (Exception e) {
 			fail("Your program threw an exception.");
 			e.printStackTrace();
@@ -140,120 +220,12 @@ class LocNotManagerTestComp {
 		}
 	}
 
-	@Test
-	public void testAddNot() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy water", 24.75365, 46.62900, 0, 0));
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
+	private static int getRandomNumberInRange(int min, int max) {
+		if (min >= max) {
+			return -1;
 		}
-	}
-
-	@Test
-	public void testDelNot() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy water", 24.75365, 46.62900, 0, 0));
-			LocNotManager.delNot(nots, 24.72294, 46.61838);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testSave() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy water", 24.75365, 46.62900, 0, 0));
-			LocNotManager.save("output.txt", nots);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testLoad() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = LocNotManager.load("input.txt");
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testGetAllNots() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy water", 24.75365, 46.62900, 0, 0));
-			List<LocNot> l = LocNotManager.getAllNots(nots);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testGetNotsAt() {
-		try {
-			BST<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy bottled water", 24.75367, 46.62902, 0, 0));
-			List<LocNot> l = LocNotManager.getNotsAt(nots, 24.72330, 46.63650, 100000);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testGetActiveNotsAt() {
-		try {
-			BST<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy bottled water", 24.75367, 46.62902, 0, 0));
-			List<LocNot> l = LocNotManager.getActiveNotsAt(nots, 24.72330, 46.63650, 100000);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testLocNotManagerPerform() {
-		try {
-			BST<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.perform(nots, 24.72330, 46.63650, 100000);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testIndex() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy bottled water", 24.75367, 46.62902, 0, 0));
-			Map<String, List<LocNot>> ind = LocNotManager.index(nots);
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
-	}
-
-	@Test
-	public void testDeleteNots() {
-		try {
-			Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
-			LocNotManager.addNot(nots, new LocNot("Buy bottled water", 24.75367, 46.62902, 0, 0));
-			LocNotManager.delNots(nots, "Buy");
-		} catch (Exception e) {
-			fail("Your program threw an exception.");
-			e.printStackTrace();
-		}
+		Random r = new Random();
+		return r.nextInt((max - min) + 1) + min;
 	}
 
 }
