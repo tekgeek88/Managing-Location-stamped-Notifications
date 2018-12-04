@@ -1,5 +1,3 @@
-import javax.xml.ws.handler.LogicalMessageContext;
-
 public class LocNotManager {
 
 	/**
