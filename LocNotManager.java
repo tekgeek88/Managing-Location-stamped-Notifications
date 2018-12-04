@@ -20,7 +20,6 @@ public class LocNotManager {
 		BufferedReader buffReader = null;
 		Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
 
-
 		try {
 
 			buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
@@ -33,7 +32,6 @@ public class LocNotManager {
 
 			while ((line = buffReader.readLine()) != null) {
 
-
 				fields = line.split("\t");
 
 				latitude = Double.valueOf(fields[0].trim());
@@ -43,7 +41,6 @@ public class LocNotManager {
 				locationName = fields[4].trim();
 
 				LocNotManager.addNot(nots, new LocNot(locationName, latitude, longitude, maxNbRepeats, nbReapeats));
-
 			}
 		} catch (IOException e) {
 			System.err.println("Exception:" + e.toString());
@@ -74,10 +71,8 @@ public class LocNotManager {
 
 			while(!allNots.empty()) {
 				notWriter.write(allNots.retrieve().toString() + "\n");
-
 				allNots.remove();
 			}
-
 			notWriter.close();
 		}
 		catch (IOException e) {
@@ -274,7 +269,6 @@ public class LocNotManager {
 						List<LocNot> newList = new LinkedList<LocNot>();
 						currentList.insert(currentLocation);
 					} else {
-//						wordMap.insert(s, new LinkedList<LocNot>().insert(currentLocation));
 						List<LocNot> newList = new LinkedList<LocNot>();
 						newList.insert(currentLocation);
 						wordMap.insert(s, newList);
@@ -283,8 +277,6 @@ public class LocNotManager {
 				entryLocations.remove();
 			}
 		}
-
-
 		return wordMap;
 	}
 

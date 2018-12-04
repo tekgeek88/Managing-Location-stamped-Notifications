@@ -1,7 +1,6 @@
 
 public class BSTNode<Key extends Comparable<? super Key>, Data> implements Comparable<BSTNode<Key, Data>> {
 
-
 	Key key;
 	Data data;
 
