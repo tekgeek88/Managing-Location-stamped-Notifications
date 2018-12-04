@@ -91,9 +91,6 @@ public class LocNotManager {
 		// A LinkedList to store all of the notifications into
 		List<LocNot> allNots = new LinkedList<LocNot>();
 
-
-
-
 		// Fetch a List of all the given latitudes as entries
 		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getAll();
 		
@@ -103,7 +100,6 @@ public class LocNotManager {
 		Double currentLatitude;
 		Double currentLongitude;
 		LocNot currentLocation;
-
 
 		while (!entryLatitude.empty()) {
 			currentLatitude = entryLatitude.retrieve().first;
@@ -150,7 +146,15 @@ public class LocNotManager {
 
 	// Delete the notification at (lat, lng). Returns true if delete took place, false otherwise.
 	public static boolean delNot(Map<Double, Map<Double, LocNot>> nots, double lat, double lng) {
-		return false;
+		boolean wasDeleted = false;
+		// Search for the latitude and update the current element to point at it
+		if (nots.find(lat)) {
+			// Fetch all the locations belonging to that latitude
+			Map<Double, LocNot> currentLat = nots.retrieve();
+			// Remove longitude
+			wasDeleted = currentLat.remove(lng);
+		}
+		return wasDeleted;
 	}
 
 	// Return the list of notifications within a square of side dst (in meters) centered at the position (lat, lng) (it does not matter if the notification is active or not). Do not call Map.getAll().
