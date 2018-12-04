@@ -1,3 +1,5 @@
+import javax.xml.ws.handler.LogicalMessageContext;
+
 public class LocNotManager {
 
 	/**
@@ -24,15 +26,47 @@ public class LocNotManager {
 	 * @return
 	 */
 	public static List<LocNot> getAllNots(Map<Double, Map<Double, LocNot>> nots) {
-		Map<Double, LocNot> locNots = null;
+
+		// A LinkedList to store all of the notifications into
+		List<LocNot> allNots = new LinkedList<LocNot>();
 		
-//		Double currentLat = 
+		// Get a List of all latitudes
+		List<Pair<Double, Map<Double, LocNot>>> latitudes = nots.getAll();
 		
+		// Make sure we are pointing to the head node.
+		latitudes.findFirst();
 		
-		List<Pair<Double, Map<Double, LocNot>>> list = nots.getAll();
+		 
+		Double currentLatitude;
+		Double currentLongitude;
 		
+		// Key: Longitude, Value: LocationNotification
+		List<Pair<Double, LocNot>> locations;
+
+		// For each latitude  
+		while ((currentLatitude = latitudes.retrieve().first) != null) {
+			
+			// Fetch all the watched locations for the given latitude
+			locations = latitudes.retrieve().second.getAll();
+			locations.findFirst();
+			
+			Pair<Double, LocNot> currentLocation;
+			
+			latitudes.findNext();
+			
+			// For each longitude
+			while(locations.empty()) {
+				currentLocation = locations.retrieve();
+				currentLongitude = currentLocation.first;
+				LocNot currentLocNot = locations.retrieve().second;
+				System.out.println(currentLatitude + " " + currentLongitude + " " + currentLocNot.getText());
+				locations.findNext();
+				allNots.insert(currentLocNot);
+				
+			}
+		}
 		
-		return null;
+		return allNots;
 	}
 
 	/**
