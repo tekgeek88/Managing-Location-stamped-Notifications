@@ -194,7 +194,7 @@ public class LocNotManager {
 				entryLocation.remove();
 			}
 		}
-
+		allNots.findFirst();
 		return allNots;
 	}
 
@@ -233,12 +233,19 @@ public class LocNotManager {
 				entryLocation.remove();
 			}
 		}
-
+		allNots.findFirst();
 		return allNots;
 	}
 
 	// Perform task of any active notification within a square of side dst (in meters) centered at the position (lat, lng) (call method perform). Do not call Map.getAll().
 	public static void perform(Map<Double, Map<Double, LocNot>> nots, double lat, double lng, double dst) {
+		List<LocNot> allNots = new LinkedList<LocNot>();
+		allNots = getActiveNotsAt(nots, lat, lng, dst);
+		LocNot currentLocation;
+		while(!allNots.empty()) {
+			
+		}
+		
 	}
 
 	// Return a map that maps every word to the list of notifications in which it appears. The list must have no duplicates.
