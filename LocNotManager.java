@@ -21,7 +21,6 @@ public class LocNotManager {
 		Map<Double, Map<Double, LocNot>> nots = new BST<Double, Map<Double, LocNot>>();
 
 		try {
-
 			buffReader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.defaultCharset()));
 
 			double longitude, latitude; 
@@ -42,13 +41,13 @@ public class LocNotManager {
 
 				LocNotManager.addNot(nots, new LocNot(locationName, latitude, longitude, maxNbRepeats, nbReapeats));
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.err.println("Exception:" + e.toString());
 		} finally {
 			if (buffReader != null) {
 				try {
 					buffReader.close();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					System.err.println("Exception:" + e.toString());
 				}
 			}
@@ -62,6 +61,7 @@ public class LocNotManager {
 	 * @param nots
 	 */
 	public static void save(String fileName, Map<Double, Map<Double, LocNot>> nots) {
+		if (nots == null) return;
 		BufferedWriter notWriter = null;
 		List<LocNot> allNots = null; 
 		try {
@@ -86,30 +86,34 @@ public class LocNotManager {
 	 * @return
 	 */
 	public static List<LocNot> getAllNots(Map<Double, Map<Double, LocNot>> nots) {
-
+		
 		// A LinkedList to store all of the notifications into
 		List<LocNot> allNots = new LinkedList<LocNot>();
 
 		// Fetch a List of all the given latitudes as entries
 		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getAll();
 
-		// {key: Longitude, Value: LocNot}
-		List<Pair<Double, LocNot>> entryLocation = null;
+		if (nots != null) {
+			List<Pair<Double, LocNot>> entryLocation = null;
+			LocNot currentLocation;
 
-		LocNot currentLocation;
-
-		while (!entryLatitude.empty()) {
-			entryLocation = entryLatitude.retrieve().second.getAll();
-			entryLatitude.remove();
-
-			while (!entryLocation.empty()) {
-				currentLocation = entryLocation.retrieve().second;
-				allNots.insert(currentLocation);
-				entryLocation.remove();
+			if (entryLatitude != null) {
+				while (!entryLatitude.empty()) {
+					entryLocation = entryLatitude.retrieve().second.getAll();
+					entryLatitude.remove();
+					if (entryLocation != null) {
+						while (!entryLocation.empty()) {
+							currentLocation = entryLocation.retrieve().second;
+							allNots.insert(currentLocation);
+							entryLocation.remove();
+						}
+					}
+				}
 			}
-
+			if (!allNots.empty()) {
+				allNots.findFirst();
+			}
 		}
-		allNots.findFirst();
 		return allNots;
 	}
 
@@ -120,6 +124,7 @@ public class LocNotManager {
 	 * @return
 	 */
 	public static boolean addNot(Map<Double, Map<Double, LocNot>> nots, LocNot not) {
+		if (nots == null || not == null) return false;
 		boolean wasInserted = false;
 		Map<Double, LocNot> locNots = null;
 
@@ -135,7 +140,6 @@ public class LocNotManager {
 			nots.insert(not.getLat(), locNots);
 			wasInserted = true;
 		} 
-
 		return wasInserted;
 	}
 
@@ -184,7 +188,9 @@ public class LocNotManager {
 				entryLocation.remove();
 			}
 		}
-		allNots.findFirst();
+		if (!allNots.empty()) {
+			allNots.findFirst();
+		}
 		return allNots;
 	}
 
@@ -223,7 +229,9 @@ public class LocNotManager {
 				entryLocation.remove();
 			}
 		}
-		allNots.findFirst();
+		if (!allNots.empty()) {
+			allNots.findFirst();
+		}
 		return allNots;
 	}
 
@@ -240,16 +248,18 @@ public class LocNotManager {
 	// Return a map that maps every word to the list of notifications in which it appears.
 	// The list must have no duplicates.
 	public static Map<String, List<LocNot>> index(Map<Double, Map<Double, LocNot>> nots) {
-		
+
 		// A map of words
 		Map<String, List<LocNot>> wordMap = new BST<String, List<LocNot>>();
-		
-		//		Map<String, Map<Double, Map<Double, LocNot>>> mapster = new BST<String, Map<Double, Map<Double, LocNot>>>();
-		
+
 		// Fetch a List of all possible latitudes as entries
 		List<Pair<Double, Map<Double, LocNot>>> entryLatitude = nots.getAll();
 		List<Pair<Double, LocNot>> entryLocations = null;
 		LocNot currentLocation;
+		
+		
+		// Fetch a list of all the notifications
+		
 
 		while (!entryLatitude.empty()) {
 			entryLocations = entryLatitude.retrieve().second.getAll();
@@ -259,14 +269,14 @@ public class LocNotManager {
 				currentLocation = entryLocations.retrieve().second;
 				String[] words = currentLocation.getText().split(" ");
 				// For each word in each location
-				
+
 				for (String s: words) {
 					// If the current word already existed in the wordMap
 					// retrieve the list and append to it
 					if (wordMap.find(s)) {
 						List<LocNot> currentList = wordMap.retrieve();
 						List<LocNot> newList = new LinkedList<LocNot>();
-						
+
 						currentList.insert(currentLocation);
 					} else {
 						List<LocNot> newList = new LinkedList<LocNot>();
